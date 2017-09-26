@@ -13,7 +13,7 @@ The goals / steps of this project are the following:
 * Warp the detected lane boundaries back onto the original image.
 * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
-## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
+## [Rubric Points](https://review.udacity.com/#!/rubrics/571/view)
 
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
@@ -29,11 +29,11 @@ Below is a brief writeup for the Advanced Lane Line Finding project.
 
 The code for this step is contained in the first and second code cells of the IPython notebook (Advanced_Lane_finding.ipynb).
 
-I started by preparing the "object points", which will be the x, y, and z coordinates of the chessboard corners. Since z=0, we can ignore z and focus solely on x and y. 'objp' is thus a replicated array of coordinates, which is appended to 'objpoints' with a new copy every time chessboard corners are deteced. 'imgpoints' holds x and y pixel positions of each of the corners in the image plane with every new chessboard detection. 
+I started by preparing the "object points", which will be the x, y, and z coordinates of the chessboard corners. Since z=0, we can ignore z and focus solely on x and y. `objp` is thus a replicated array of coordinates, which is appended to `objpoints` with a new copy every time chessboard corners are deteced. `imgpoints` holds x and y pixel positions of each of the corners in the image plane with every new chessboard detection. 
 
-Then, I used 'objpoints' and 'imgpoints' to calibrate and undistort. Calibration was completed using 'cv2.calibrateCamera()', which then fed into 'cv2.undistort()' by taking the distortion coefficient from the calibration function.
+I then used `objpoints` and `imgpoints` to calibrate and undistort the images. Calibration was completed using `cv2.calibrateCamera()`, which then fed into `cv2.undistort()` by taking the distortion coefficient from the calibration function.
 
-Check out the image below for a quick example:
+**Undistorted Chessboard**
 
 ![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/undistort_chessboard.png?raw=true "Undistorted chessboard")
 
@@ -43,6 +43,8 @@ Check out the image below for a quick example:
 
 I ran test1.jpg through the calibration and undistort function to confirm the function was working correctly. See below for an example:
 
+**Undistorted Test Image**
+
 ![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/undistort_road.png?raw=true "Undistorted test1.jpg")
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
@@ -51,33 +53,44 @@ I used a combination of color transforms and gradients to created a thresholded 
 
 In code cell 5 of the IPython notebook, you can check out three different gradients that I ran for testing purposes. 
 
-The first is 'abs_sobel_thresh', which converts an image to grayscale and then takes either the x or y oriented sobel threshold and applies it to the image.
+The first is `abs_sobel_thresh`, which converts an image to grayscale and then takes either the x or y oriented sobel threshold and applies it to the image.
 
-The second is 'mag_thresh', which converts to grayscale, takes sobel in the x and y direction, then uses sobelx and sobely to find a magnitude. This is finally used to breate a binary mask after being scaled to 8-bit and converted to unint8.
+The second is `mag_thresh`, which converts to grayscale, takes sobel in the x and y direction, then uses sobelx and sobely to find a magnitude. This is finally used to breate a binary mask after being scaled to 8-bit and converted to unint8.
 
-The final gradient is 'dir_threshold', which converts to grayscale, takes sobel in the x and y direction, creates the absolute value for both sobelx and sobely, and then finally uses np.arctan2 to calculate the direction of the gradient. This is then used to create a binary mask where the direction thresholds are met. Examples of the various gradients can be seen below:
+The final gradient is `dir_threshold`, which converts to grayscale, takes sobel in the x and y direction, creates the absolute value for both sobelx and sobely, and then finally uses np.arctan2 to calculate the direction of the gradient. This is then used to create a binary mask where the direction thresholds are met. Examples of the various gradients can be seen below:
 
-Thresholds
+**Threshold Images**
+
 ![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/thresholds.png?raw=true "Threshold images")
 
 I then began testing various color transforms to get a sense for what would be most effective in my pipeline. I tested HLS, HSV, and LAB and was able to view each channel individually. Example images can be found by opeining up the IPython notebook in the browser and navigating to code cell 6.
 
 Most importantly, I then created thresholds for each color space to test as well. You can view them all in code cell 7. I defined one for HLS, lightness (again utilizing HLS), HSV, LAB, and finally a combined threshold. 
 
-Here are examples for Lightness, HLS, HSV Value, HSV Saturation, and the LAB binaries.
+Here are examples for Lightness, HLS, HSV Binary, HSV Value, HSV Saturation, and the LAB binaries.
 
-Binary images
-![alt text](image3 "Binary images")
+**Binary Images**
 
-The combined binary function took quite a bit of time to work through to find the right combination of thresholds that yielded the best results. As you can see, in code cell 10 of the IPython notebook, I ended up utilizing a combination of 7 thresholds to come up with my final image processing function. An example of the final result is below:
+![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/binary.png?raw=true "Binary images")
 
-Combined Binary
-![alt text][image3 "Combined binary"]
+The combined binary function took quite a bit of time to work through to find the right combination of thresholds that yielded the best results. As you can see, in code cell 10 of the IPython notebook, I ended up utilizing a combination of 5 thresholds to come up with my final image processing function. 
 
+The 5 thresholds that proved most fruitful (which you can probably tell from my initial testing above) were:
+- Sobel X binary
+- Sobel Y binary
+- HSV value binary
+- Lightness binary
+- LAB binary
+
+An example of the final result is below:
+
+**Combined Binary Image**
+
+![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/combined_binary.png?raw=true "Combined binary")
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called 'unwarp' in code cell 11 of the IPython notebook. The 'unwarp' function takes as image as input, gathers the height and width, and takes in source and destination points as well. I chose to hardcode the source and destination points like so:
+The code for my perspective transform includes a function called `unwarp` in code cell 11 of the IPython notebook. The `unwarp` function takes as image as input, gathers the height and width, and takes in source and destination points as well. I chose to hardcode the source and destination points like so:
 
 ```python
 src = np.float32([[585,460], 
@@ -99,12 +112,13 @@ This resulted in the following source and destination points:
 | 1127, 720     | 960, 720      |
 | 695, 460      | 960, 0        |
 
-You can see an example of the output of the 'unwarp' function by checking out the image below:
+You can see an example of the output of the `unwarp` function by checking out the image below:
 
-Perspective Transform
-![alt text][image4 "Perspective"]
+**Perspective Transform Image**
 
-I then ran all of the test images through the 'pipeline' function to test its performance. This allowed me to see if the color space and gradient thresholds were performing well enough for the final test with the video. You can check out the pipeline and test images in code cells 12 and 13, respectively.
+![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/perspective.png?raw=true "Perspective")
+
+I then ran all of the test images through the `pipeline` function to test its performance. This allowed me to see if the color space and gradient thresholds were performing well enough for the final test with the video. You can check out the pipeline and test images in code cells 12 and 13, respectively.
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
@@ -112,16 +126,19 @@ By following the instructions closely from the Lessons provided, I identified la
 
 I began by creating a histogram based on the shape of the binary image. Since pixel values are either 0s or 1s, a peak in the histogram will indicate that there is a lane line. See the example image below:
 
-Histogram
-![alt text][image5 "Histogram"]
+**Histogram**
+
+![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/histogram.png?raw=true "Histogram")
 
 By following along in the Lesson, I then fit my lane lines with a 2nd order polynomial with the same code that Udacity had provided. It turned out to be plenty robust in fitting lane lines. You can find the code in cells 15 - 18 of my IPython notebook. Here are couple visualations of the lane lines being detected.
 
-Lane Lines 1
-![alt text][image5 "Lane lines 1"]
+**Lane Lines 1**
 
-Lane Lines 2
-![alt text][image5 "Lane lines 2"]
+![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/lanelines1.png?raw=true "Lane lines 1")
+
+**Lane Lines 2**
+
+![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/lanelines2.png?raw=true "Lane lines 2")
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
@@ -137,8 +154,9 @@ Resources:
 
 I implemented this step in code cell 22 of the IPython notebook. By following great instructions provided by the Udacity Lesson, I was able to successfully overlay the resulting lane area onto the original image along with the radius of curvature and center offset. An example image is below:
 
-Lane Area and text overlay
-![alt text][image6 "Lane area"]
+**Lane Area Image**
+
+![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/lane.png?raw=true "Lane area")
 
 Huge shoutout to the second resource link below. It really brought me over the hump by giving me the idea to combine many many thresholds. At first, I was only combining a couple thresholds and the lane area was very distorted during my first few videos. My final result would not be nearly as good without the second link's discussion.
 
@@ -153,7 +171,7 @@ Resources:
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-The final pipeline combines two major functions, 'pipeline' and 'lane', which are combined into a larger image processing function called 'final_pipeline'. By utilizing moviepy.editor (VideoFileClip), I was able to run each video frame through 'final_pipeline' successfully.
+The final pipeline combines two major functions, `pipeline` and `lane`, which are combined into a larger image processing function called `final_pipeline`. By utilizing moviepy.editor (VideoFileClip), I was able to run each video frame through `final_pipeline` successfully.
 
 Here's a [link to my video result](./project_video_output.mp4)
 
@@ -173,7 +191,7 @@ To deal with the shadows in challenge_video.mp4, I would follow the advice of [t
 
 Finally, I believe this pipeline is not perfect when encountering various pavement colors. While, I was able to negate the effects of different colored pavement in my current pipeline, you can see that it is not perfect on the lighter colored pavement. Further investigation and standardization of pavement coloring with respect to lane lines would be very helpful.
 
-Moving on to even tougher challenges (e.g. rain, snow, nighttime, etc.) would most likely prove to be even tougher. An immense about of research would have to be done within each of these domains and would most likely take a few months for each subject. Thinking about the varying conditions, you can start to see why image processing using only camera images is so difficult. Recently, Keras create Francis Chollet tweeted about these difficulties in comparision to training neural networks. The amount of time needed to fine tune image processing versus neural networks is so large that even the highest performing teams will take years to create a self-driving car solely with image data. 
+Moving on to even tougher challenges (e.g. rain, snow, nighttime, etc.) would most likely prove to be even tougher. An immense about of research would have to be done within each of these domains and would most likely take a few months for each subject. Thinking about the varying conditions, you can start to see why image processing using only camera images is so difficult. Recently, Keras creator Francis Chollet tweeted about these difficulties in comparision to training neural networks. The amount of time needed to fine tune image processing versus neural networks is so large that even the highest performing teams will take years to create a self-driving car solely with image data. 
 
 I would be very interested to see how many of the large firms are combining lidar, radar, camera data, and neural networks to solve these problems. Obviously the more data, the more robust the models and pipelines can become and I would love to explore this sometime in the future. 
 
