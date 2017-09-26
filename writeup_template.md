@@ -35,7 +35,7 @@ Then, I used 'objpoints' and 'imgpoints' to calibrate and undistort. Calibration
 
 Check out the image below for a quick example:
 
-![alt text][INSERT IMAGE LINK HERE "Undistorted chessboard"]
+![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/undistort_chessboard.png?raw=true "Undistorted chessboard")
 
 ### Pipeline (single images)
 
@@ -43,7 +43,7 @@ Check out the image below for a quick example:
 
 I ran test1.jpg through the calibration and undistort function to confirm the function was working correctly. See below for an example:
 
-![alt text][INSERT "Undistorted test1.jpg"]
+![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/undistort_road.png?raw=true "Undistorted test1.jpg")
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
@@ -57,20 +57,8 @@ The second is 'mag_thresh', which converts to grayscale, takes sobel in the x an
 
 The final gradient is 'dir_threshold', which converts to grayscale, takes sobel in the x and y direction, creates the absolute value for both sobelx and sobely, and then finally uses np.arctan2 to calculate the direction of the gradient. This is then used to create a binary mask where the direction thresholds are met. Examples of the various gradients can be seen below:
 
-Sobel X
-![alt text][image3 "Sobel X"]
-
-Sobel Y
-![alt text][image3 "Sobel Y"]
-
-Magnitude Threshold
-![alt text][image3 "Magnitude"]
-
-Direction Threshold
-![alt text][image3 "Direction"]
-
-Combined Threshold
-![alt text][image3 "Combined"]
+Thresholds
+![alt text](https://github.com/tlapinsk/CarND-Advanced-Lane-Lines/blob/master/example_images/thresholds.png?raw=true "Threshold images")
 
 I then began testing various color transforms to get a sense for what would be most effective in my pipeline. I tested HLS, HSV, and LAB and was able to view each channel individually. Example images can be found by opeining up the IPython notebook in the browser and navigating to code cell 6.
 
@@ -78,20 +66,8 @@ Most importantly, I then created thresholds for each color space to test as well
 
 Here are examples for Lightness, HLS, HSV Value, HSV Saturation, and the LAB binaries.
 
-Lightness Binary
-![alt text][image3 "Lightness"]
-
-HLS Binary
-![alt text][image3 "HLS"]
-
-HSV Value Binary
-![alt text][image3 "HSV value"]
-
-HSV Saturation Binary
-![alt text][image3 "HSV saturation"]
-
-LAB Binary
-![alt text][image3 "LAB"]
+Binary images
+![alt text](image3 "Binary images")
 
 The combined binary function took quite a bit of time to work through to find the right combination of thresholds that yielded the best results. As you can see, in code cell 10 of the IPython notebook, I ended up utilizing a combination of 7 thresholds to come up with my final image processing function. An example of the final result is below:
 
@@ -169,6 +145,7 @@ Huge shoutout to the second resource link below. It really brought me over the h
 Resources:
 - [Lane area problems](https://discussions.udacity.com/t/the-green-surface-is-not-covering-the-lanes-properly/357275)
 - [Surface distortion](https://discussions.udacity.com/t/green-surface-is-distorted/367543)
+- [Drawing text on images](http://www.meccanismocomplesso.org/en/english-opencv-python-drawing-shapes-text-on-images/)
 
 ---
 
